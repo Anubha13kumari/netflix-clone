@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import YouTube from 'react-youtube';
 import axios from "./axios"
 import './Row.css';
-
+import movieTrailer from 'movie-trailer'
 
 const base_url = 'https://image.tmdb.org/t/p/original'
 
@@ -31,13 +31,24 @@ function Row({ title, fetchUrl }) {
     }
   }
 
+  const handleClick = (movie) => {
+    if (trailerUrl) {
+      setTrailerUrl('')
+    } else {
+      movieTrailer(movie?.name || "").then(url => {
+        const urlParams = new URLSearchParams(new URL(url).search)
+        setTrailerUrl(urlParams.get('v'))
+      }).catch(err => console.log(err))
+    }
+  }
+
 
   return (
     <div className='row__container'>
       <h2>{title}</h2>
       <div className='row__posters'>
         {movies.map(movie => (
-          <img key={movie.id} className="row__poster" src={"https://image.tmdb.org/t/p/original" + movie.backdrop_path} alt={movie.name}></img>
+          <img key={movie.id} onClick={() => handleClick(movie)} className="row__poster" src={"https://image.tmdb.org/t/p/original" + movie.backdrop_path} alt={movie.name}></img>
         ))}
       </div>
       {trailerUrl && <YouTube videoId={trailerUrl} opts={opts}></YouTube>}
